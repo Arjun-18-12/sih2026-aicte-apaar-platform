@@ -45,7 +45,7 @@ When you are ready to connect to your live Supabase cloud database, follow these
 4. Update your `.env` file:
    ```env
    VITE_SUPABASE_URL=https://your-project-ref.supabase.co
-   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   VITE_SUPABASE_ANON_KEY="YOUR_SUPABASE_KEY"
    ```
 5. Restart your dev server (`npm run dev`).
 
