@@ -1,0 +1,6 @@
+institution_student_id,full_name,apaar_id,programme_code,academic_year,admission_date,admission_category,gender,supernumerary_classification,is_nri,is_oci,is_foreign_national
+SRIT-2024-001,Aarav Rajesh Sharma,123456789012,BTECH-CS,2024-25,2024-07-15,general,male,none,false,false,false
+SRIT-2024-002,Priya Sundaram Iyer,987654321098,BTECH-CS,2024-25,2024-07-16,obc,female,none,false,false,false
+SRIT-2024-003,Rohan Amit Deshmukh,112233445566,BTECH-CS,2024-25,2024-07-16,sc,male,none,false,false,false
+SRIT-2024-004,Ananya Vikram Verma,998877665544,BTECH-CS,2024-25,2024-07-18,ews,female,none,false,false,false
+SRIT-2024-005,Devendra Kumar Singh,556677889900,BTECH-CS,2024-25,2024-07-19,st,male,none,false,false,false

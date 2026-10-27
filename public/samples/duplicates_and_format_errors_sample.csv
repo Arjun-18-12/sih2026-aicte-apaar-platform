@@ -1,0 +1,6 @@
+institution_student_id,full_name,apaar_id,programme_code,academic_year,admission_date,admission_category,gender,supernumerary_classification,is_nri,is_oci,is_foreign_national
+SRIT-2024-010,Kavita Sunil Nair,12345,BTECH-CS,2024-25,2024-07-15,general,female,none,false,false,false
+SRIT-2024-010,Kavita Sunil Nair (DUPLICATE),123456789012,BTECH-CS,2024-25,2024-07-15,general,female,none,false,false,false
+SRIT-2024-012,,889900112233,BTECH-CS,2024-25,2024-07-16,general,male,none,false,false,false
+SRIT-2024-013,Mohammad Zeeshan Khan,INVALID_APAAR,BTECH-CS,2024-25,2024-07-17,invalid_category,male,none,false,false,false
+SRIT-2024-014,Deepak Ramesh Rao,,BTECH-CS,2024-25,2024-07-18,general,male,none,false,false,false

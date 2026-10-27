@@ -1,0 +1,184 @@
+openapi: 3.0.3
+info:
+  title: AICTE-APAAR Institution-to-AICTE Student Data Management API
+  version: 1.0.0
+  description: |
+    Versioned RESTful interface for institution ERP integrations and AICTE central supervisory data exchange.
+    Enforces idempotency keys, role-based authorization, batch audit logging, and format validation.
+    
+    *Note: APAAR identity verification in this prototype is SIMULATED and does not hit production UIDAI/DigiLocker servers without authorized government credentials.*
+servers:
+  - url: https://api.aicte-apaar.gov.in/v1
+    description: Production Gateway (Future Authorized Production)
+  - url: http://localhost:5173/api/v1
+    description: Local Prototype Sandbox
+paths:
+  /institutions/{institution_id}/programmes:
+    get:
+      summary: Lookup approved programmes and intake limits for an institution
+      description: Returns active approved academic programmes, approved intake capacities, and supernumerary quotas.
+      parameters:
+        - name: institution_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: academic_year
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "2024-25"
+      responses:
+        '200':
+          description: List of approved programmes and quotas
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProgrammeWithIntake'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /batches/submit:
+    post:
+      summary: Submit a batch of student enrolment records
+      description: |
+        Submits student records under an institution. 
+        Idempotent operation: Retrying with the same X-Idempotency-Key will return the previous result without duplicate insertions.
+      parameters:
+        - name: X-Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchSubmissionRequest'
+      responses:
+        '202':
+          description: Batch accepted for asynchronous validation and review
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchSubmissionResponse'
+        '400':
+          description: Structural or validation errors detected
+        '409':
+          description: Idempotency conflict or intake overflow
+
+  /batches/{batch_id}/status:
+    get:
+      summary: Get batch processing status and validation results
+      parameters:
+        - name: batch_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Batch status details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchStatusResponse'
+
+  /verification/apaar/{apaar_id}:
+    get:
+      summary: Check APAAR format and identity verification status
+      description: Returns format validation and verification status. Clearly marks simulated versus authoritative results.
+      parameters:
+        - name: apaar_id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9]{12}$'
+            example: "123456789012"
+      responses:
+        '200':
+          description: Verification status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApaarVerificationResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ProgrammeWithIntake:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        code: { type: string, example: "BTECH-CS" }
+        name: { type: string, example: "B.Tech Computer Science" }
+        level: { type: string, example: "UG" }
+        approved_intake: { type: integer, example: 120 }
+        supernumerary_nri: { type: integer, example: 3 }
+        supernumerary_oci: { type: integer, example: 2 }
+        supernumerary_fn: { type: integer, example: 1 }
+    BatchSubmissionRequest:
+      type: object
+      required: [institution_id, academic_year, records]
+      properties:
+        institution_id: { type: string, format: uuid }
+        academic_year: { type: string, example: "2024-25" }
+        records:
+          type: array
+          items:
+            type: object
+            required: [institution_student_id, full_name, programme_code, admission_date, admission_category]
+            properties:
+              institution_student_id: { type: string, example: "SRIT-2024-001" }
+              full_name: { type: string, example: "Aarav Rajesh Sharma" }
+              apaar_id: { type: string, example: "123456789012" }
+              programme_code: { type: string, example: "BTECH-CS" }
+              admission_date: { type: string, format: date, example: "2024-07-15" }
+              admission_category: { type: string, example: "general" }
+              supernumerary_classification: { type: string, example: "none" }
+    BatchSubmissionResponse:
+      type: object
+      properties:
+        batch_id: { type: string, format: uuid }
+        status: { type: string, enum: [processing, validation_complete, submitted] }
+        total_records: { type: integer }
+        valid_records: { type: integer }
+        error_records: { type: integer }
+        created_at: { type: string, format: date-time }
+    BatchStatusResponse:
+      type: object
+      properties:
+        batch_id: { type: string, format: uuid }
+        status: { type: string }
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              row_number: { type: integer }
+              field: { type: string }
+              message: { type: string }
+    ApaarVerificationResponse:
+      type: object
+      properties:
+        apaar_id: { type: string }
+        status: { type: string, enum: [verified, invalid, pending, unavailable] }
+        source: { type: string, example: "SIMULATED_PROTOTYPE_PROVIDER" }
+        is_simulated: { type: boolean, example: true }
+        checked_at: { type: string, format: date-time }
+  responses:
+    Unauthorized:
+      description: Missing or invalid JWT credentials

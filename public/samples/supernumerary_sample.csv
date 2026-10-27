@@ -1,0 +1,4 @@
+institution_student_id,full_name,apaar_id,programme_code,academic_year,admission_date,admission_category,gender,supernumerary_classification,is_nri,is_oci,is_foreign_national
+SRIT-2024-NRI-01,Zack Tariq Merchant,334455667788,BTECH-CS,2024-25,2024-07-20,nri,male,nri,true,false,false
+SRIT-2024-OCI-01,Maya Elena Patel,445566778899,BTECH-CS,2024-25,2024-07-21,oci,female,oci,false,true,false
+SRIT-2024-FN-01,Lucas Jean Dubois,556677889911,BTECH-CS,2024-25,2024-07-22,foreign_national,male,fn,false,false,true
